@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        // 3초에 걸쳐 서서히 사라지게 함
+        document.getElementById('loading-screen').style.opacity = '0';
+        
+        // 애니메이션이 끝난 후 (3초 후) 요소를 완전히 제거
+        setTimeout(function() {
+            document.getElementById('loading-screen').style.display = 'none';
+        }, 1000);
+    }, 1000); // 페이지 로드 후 3초 동안 로딩 화면을 유지
+});
+
+document.addEventListener('DOMContentLoaded', function() {
     const page = window.location.hash.substr(1) || 'main';
     loadPage(page);
     window.addEventListener('hashchange', function() {
