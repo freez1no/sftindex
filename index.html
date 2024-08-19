@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>행캠 대행사</title>
     <style>
-        /* 기존 스타일 생략 */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -251,6 +250,34 @@
         .star-rating span.active {
             color: #ffcc00;
         }
+        /* 하단 네비게이션바 스타일 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333;
+            color: #fff;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        .bottom-nav button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .bottom-nav button img {
+            width: 24px;
+            height: 24px;
+            filter: invert(100%); /* 흰색으로 반전 */
+        }
+        .bottom-nav button:hover {
+            color: #ffcc00;
+        }
     </style>
 </head>
 <body>
@@ -377,6 +404,14 @@
             </div>
         </section>
 
+        <!-- 신청 목록 섹션 -->
+        <section id="appliedEvents" class="hidden">
+            <h2>신청한 행사 목록</h2>
+            <div class="event-list" id="appliedList">
+                <!-- 신청한 행사 목록이 여기에 표시됩니다 -->
+            </div>
+        </section>
+
         <!-- 리뷰 작성 폼 -->
         <section id="reviewForm" class="hidden">
             <h2>리뷰 작성</h2>
@@ -406,8 +441,17 @@
         </section>
     </div>
 
+    <!-- 하단 고정 네비게이션 바 -->
+    <div class="bottom-nav">
+        <button onclick="showSection('eventList')">
+            <img src="home-button.png" alt="홈">
+        </button>
+        <button onclick="showSection('appliedEvents'); loadAppliedList()">신청목록</button>
+    </div>
+
     <script>
         let currentEventTitle = '';
+        let appliedEvents = JSON.parse(localStorage.getItem('appliedEvents')) || [];
 
         document.addEventListener('DOMContentLoaded', function() {
             showSection('eventList');
@@ -658,7 +702,38 @@
         }
 
         function applyForEvent() {
-            alert("신청이 완료되었습니다!");
+            if (!appliedEvents.includes(currentEventTitle)) {
+                appliedEvents.push(currentEventTitle);
+                localStorage.setItem('appliedEvents', JSON.stringify(appliedEvents));
+                alert("신청이 완료되었습니다!");
+            } else {
+                alert("이미 신청된 행사입니다.");
+            }
+        }
+
+        function loadAppliedList() {
+            const appliedList = document.getElementById('appliedList');
+            appliedList.innerHTML = '';
+
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+
+            appliedEvents.forEach(title => {
+                const event = events.find(e => e.title === title);
+                if (event) {
+                    const eventItem = document.createElement('div');
+                    eventItem.className = 'event-item-wrapper';
+                    eventItem.innerHTML = `
+                        <div class="event-item">
+                            <img src="${event.photo}" alt="${event.title}">
+                            <div>
+                                <h3>${event.title}</h3>
+                                <p>${event.subtitle}</p>
+                            </div>
+                        </div>
+                    `;
+                    appliedList.appendChild(eventItem);
+                }
+            });
         }
 
         function deleteEvent(index) {
