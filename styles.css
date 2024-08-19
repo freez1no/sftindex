@@ -1,0 +1,259 @@
+/* 기본 스타일 */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 15px 0;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 메인 페이지 스타일 */
+.button-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.button-container a {
+    display: inline-block;
+    padding: 10px 20px;
+    color: #fff;
+    background-color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    margin: 0 5px;
+}
+
+.button-container a:hover {
+    background-color: #555;
+}
+
+.event-item {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    border: 1px solid #3498db;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.event-item img {
+    width: 150px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 20px;
+    border-radius: 4px;
+}
+
+.event-item div {
+    flex: 1;
+}
+
+.event-item h3 {
+    margin: 0 0 10px;
+}
+
+.event-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.event-item input[type="checkbox"] {
+    margin-right: 15px;
+    transform: scale(1.2);
+}
+
+.event-item .delete-button {
+    background-color: #e74c3c;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.event-item .delete-button:hover {
+    background-color: #c0392b;
+}
+
+.compare-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.compare-container button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.compare-container button:hover {
+    background-color: #218838;
+}
+
+/* 행사 등록 페이지 스타일 */
+.form-section {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.form-section h2 {
+    margin-top: 0;
+}
+
+form label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+form button {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #555;
+}
+
+/* 행사 상세보기 페이지 스타일 */
+.button-container button {
+    display: inline-block;
+    padding: 10px 20px;
+    color: #fff;
+    background-color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    margin: 0 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.button-container button:hover {
+    background-color: #555;
+}
+
+.event-detail {
+    display: flex;
+    flex-wrap: wrap;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.event-detail img {
+    flex: 1;
+    max-width: 300px;
+    margin-right: 20px;
+    border-radius: 8px;
+}
+
+.event-detail div {
+    flex: 2;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f4f4f4;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.event-detail h2 {
+    margin-top: 0;
+}
+
+.event-detail p, .event-detail ul {
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+.event-detail ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.event-detail ul li {
+    background: #e7e7e7;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* 행사 비교 페이지 스타일 */
+.compare-table {
+    display: flex;
+    flex-wrap: wrap;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.compare-item {
+    flex: 1;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+    text-align: center;
+}
+
+.compare-item:last-child {
+    border-right: none;
+}
+
+.compare-item h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.compare-item p {
+    margin: 10px 0;
+}
+
+.compare-item ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.compare-item ul li {
+    background: #e7e7e7;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 4px;
+}
