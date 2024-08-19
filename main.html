@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>행캠 대행사</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 15px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .button-container a {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 0 5px;
+        }
+        .button-container a:hover {
+            background-color: #555;
+        }
+        .event-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+        }
+        .event-item img {
+            width: 150px;
+            height: 100px;
+            object-fit: cover;
+            margin-right: 20px;
+        }
+        .event-item div {
+            flex: 1;
+        }
+        .event-item h3 {
+            margin: 0 0 10px;
+        }
+        .event-item button {
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .event-item button:hover {
+            background-color: #555;
+        }
+        .compare-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .compare-container button {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .compare-container button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>행캠 대행사</h1>
+    </header>
+
+    <div class="container">
+        <div class="button-container">
+            <a href="register.html">행사 등록</a>
+        </div>
+
+        <section class="event-list">
+            <h2>홍보하는 행사 목록</h2>
+
+            <!-- 행사 항목 1 -->
+            <div class="event-item">
+                <img src="image1.jpg" alt="행사 이미지 1">
+                <div>
+                    <h3>해쉬엔터테인먼트코리아</h3>
+                    <p>3개 서비스 대행</p>
+                    <p>5명~10명</p>
+                    <p>서울 송파구</p>
+                    <button onclick="location.href='event-details.html?name=해쉬엔터테인먼트코리아'">상세 보기</button>
+                </div>
+            </div>
+
+            <!-- 행사 항목 2 -->
+            <div class="event-item">
+                <img src="image2.jpg" alt="행사 이미지 2">
+                <div>
+                    <h3>(주)클리프</h3>
+                    <p>12개 서비스 대행</p>
+                    <p>10명~30명</p>
+                    <p>서울 금천구</p>
+                    <button onclick="location.href='event-details.html?name=(주)클리프'">상세 보기</button>
+                </div>
+            </div>
+
+            <!-- 행사 항목 3 -->
+            <div class="event-item">
+                <img src="image3.jpg" alt="행사 이미지 3">
+                <div>
+                    <h3>엣지랭크</h3>
+                    <p>5개 서비스 대행</p>
+                    <p>100명~200명</p>
+                    <p>서울 강남구</p>
+                    <button onclick="location.href='event-details.html?name=엣지랭크'">상세 보기</button>
+                </div>
+            </div>
+
+            <!-- 추가적인 행사 항목들도 같은 형식으로 추가할 수 있습니다. -->
+        </section>
+
+        <div class="compare-container">
+            <button id="compareButton" onclick="compareSelected()">비교하기</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedEvents = [];
+
+        function toggleCompare(eventName) {
+            const index = selectedEvents.indexOf(eventName);
+
+            if (index > -1) {
+                selectedEvents.splice(index, 1);
+            } else {
+                if (selectedEvents.length < 4) {
+                    selectedEvents.push(eventName);
+                } else {
+                    alert('최대 4개의 행사만 비교할 수 있습니다.');
+                    return;
+                }
+            }
+
+            console.log(selectedEvents);
+        }
+
+        function compareSelected() {
+            if (selectedEvents.length < 2) {
+                alert('최소 2개의 행사 이상을 선택해야 비교할 수 있습니다.');
+                return;
+            }
+            alert('비교할 행사: ' + selectedEvents.join(', '));
+        }
+    </script>
+</body>
+</html>
