@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>행캠 대행사</title>
     <style>
+        /* 기존 스타일 생략 */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -212,6 +213,44 @@
         .delete-button:hover {
             background-color: #c82333;
         }
+        /* 리뷰 관련 스타일 추가 */
+        .review-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .review-container h3 {
+            margin-top: 0;
+        }
+        .review-item {
+            margin-bottom: 20px;
+        }
+        .review-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+        .review-item p {
+            margin: 0;
+            color: #666;
+        }
+        .star-rating {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .star-rating span {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ccc;
+        }
+        .star-rating span.active {
+            color: #ffcc00;
+        }
     </style>
 </head>
 <body>
@@ -219,7 +258,7 @@
         <h1>행캠 대행사</h1>
     </header>
     <nav>
-        <a href="#" onclick="showSection('eventList')">행사 대행 업체 목록</a>
+        <a href="#" onclick="showSection('eventList')">행사 목록</a>
         <a href="#" onclick="showSection('promotionList')">행사 팀 홍보</a>
         <a href="#" onclick="showSection('registerEvent')">행사 등록</a>
     </nav>
@@ -227,7 +266,7 @@
     <div class="container">
         <!-- 행사 목록 섹션 -->
         <section id="eventList" class="hidden">
-            <h2>행사 대행사 목록</h2>
+            <h2>홍보하는 행사 목록</h2>
             <div class="event-list"></div>
             <div class="compare-container">
                 <button id="compareButton" onclick="compareSelected()">비교하기</button>
@@ -250,7 +289,7 @@
                 <div class="form-group">
                     <label for="category">카테고리</label>
                     <select id="category" name="category" required>
-                        <option value="event">행사 대행 업체</option>
+                        <option value="event">행사 목록</option>
                         <option value="promotion">행사 팀 홍보</option>
                     </select>
                 </div>
@@ -305,6 +344,7 @@
                 <button onclick="showSection('eventList')">뒤로 가기</button>
                 <button onclick="applyForEvent()">신청하기</button>
                 <button onclick="editEvent()">수정하기</button>
+                <button onclick="showReviewForm()">리뷰 쓰기</button>
             </div>
 
             <div class="event-detail">
@@ -328,10 +368,48 @@
                     <p id="eventContact">연락처 정보가 여기에 표시됩니다.</p>
                 </div>
             </div>
+
+            <!-- 리뷰 섹션 -->
+            <div class="review-container">
+                <h3>리뷰</h3>
+                <div id="reviews">
+                    <!-- 작성된 리뷰가 여기에 표시됩니다 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 리뷰 작성 폼 -->
+        <section id="reviewForm" class="hidden">
+            <h2>리뷰 작성</h2>
+            <form id="reviewFormElement">
+                <div class="form-group">
+                    <label for="reviewText">리뷰 내용</label>
+                    <textarea id="reviewText" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="reviewPhotos">리뷰 사진</label>
+                    <input type="file" id="reviewPhotos" multiple accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>평점</label>
+                    <div class="star-rating" id="starRating">
+                        <span data-value="1">★</span>
+                        <span data-value="2">★</span>
+                        <span data-value="3">★</span>
+                        <span data-value="4">★</span>
+                        <span data-value="5">★</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit">리뷰 제출</button>
+                </div>
+            </form>
         </section>
     </div>
 
     <script>
+        let currentEventTitle = '';
+
         document.addEventListener('DOMContentLoaded', function() {
             showSection('eventList');
             loadEventList();
@@ -340,6 +418,18 @@
             document.getElementById('registerForm').addEventListener('submit', function (event) {
                 event.preventDefault();
                 registerEvent();
+            });
+
+            document.getElementById('reviewFormElement').addEventListener('submit', function(event) {
+                event.preventDefault();
+                submitReview();
+            });
+
+            const stars = document.querySelectorAll('#starRating span');
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    setRating(this.getAttribute('data-value'));
+                });
             });
         });
 
@@ -427,7 +517,8 @@
                     services,
                     prices,
                     contact,
-                    photo: photos[0] // 첫 번째 사진을 사용
+                    photo: photos[0], // 첫 번째 사진을 사용
+                    reviews: [] // 리뷰를 위한 필드 추가
                 };
 
                 const events = JSON.parse(localStorage.getItem('events')) || [];
@@ -460,6 +551,7 @@
             const event = events.find(e => e.title === eventTitle);
 
             if (event) {
+                currentEventTitle = event.title;
                 document.getElementById('eventPhoto').src = event.photo;
                 document.getElementById('eventTitle').textContent = event.title;
                 document.getElementById('eventSubtitle').textContent = event.subtitle;
@@ -475,7 +567,94 @@
 
                 document.getElementById('eventContact').textContent = event.contact;
 
+                loadReviews(event.reviews);
+
                 showSection('eventDetails');
+            }
+        }
+
+        function loadReviews(reviews) {
+            const reviewContainer = document.getElementById('reviews');
+            reviewContainer.innerHTML = '';
+
+            reviews.forEach(review => {
+                const reviewItem = document.createElement('div');
+                reviewItem.className = 'review-item';
+                reviewItem.innerHTML = `
+                    <p>평점: ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</p>
+                    <p>${review.text}</p>
+                    ${review.photos.map(photo => `<img src="${photo}" alt="리뷰 이미지">`).join('')}
+                `;
+                reviewContainer.appendChild(reviewItem);
+            });
+        }
+
+        function showReviewForm() {
+            setRating(0); // 초기 평점을 0으로 설정
+            document.getElementById('reviewText').value = '';
+            document.getElementById('reviewPhotos').value = '';
+            showSection('reviewForm');
+        }
+
+        function setRating(rating) {
+            const stars = document.querySelectorAll('#starRating span');
+            stars.forEach(star => {
+                star.classList.remove('active');
+                if (parseInt(star.getAttribute('data-value')) <= rating) {
+                    star.classList.add('active');
+                }
+            });
+            document.getElementById('reviewFormElement').dataset.rating = rating;
+        }
+
+        function submitReview() {
+            const reviewText = document.getElementById('reviewText').value;
+            const reviewRating = document.getElementById('reviewFormElement').dataset.rating;
+            const photoFiles = document.getElementById('reviewPhotos').files;
+
+            if (!reviewText || reviewRating === '0') {
+                alert('리뷰 내용을 입력하고 평점을 선택하세요.');
+                return;
+            }
+
+            const photos = [];
+            let loadedImages = 0;
+
+            for (let i = 0; i < photoFiles.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    photos.push(event.target.result);
+                    loadedImages++;
+                    if (loadedImages === photoFiles.length) {
+                        saveReview(photos);
+                    }
+                };
+                reader.readAsDataURL(photoFiles[i]);
+            }
+
+            if (photoFiles.length === 0) {
+                saveReview(photos); // 사진이 없을 경우 바로 저장
+            }
+
+            function saveReview(photos) {
+                const newReview = {
+                    text: reviewText,
+                    rating: parseInt(reviewRating),
+                    photos: photos
+                };
+
+                const events = JSON.parse(localStorage.getItem('events')) || [];
+                const eventIndex = events.findIndex(e => e.title === currentEventTitle);
+
+                if (eventIndex !== -1) {
+                    events[eventIndex].reviews.push(newReview);
+                    localStorage.setItem('events', JSON.stringify(events));
+
+                    alert('리뷰가 성공적으로 등록되었습니다.');
+                    showEventDetails(currentEventTitle);
+                } else {
+                    alert('리뷰를 등록할 수 없습니다.');
+                }
             }
         }
 
@@ -484,9 +663,8 @@
         }
 
         function editEvent() {
-            const currentEventName = document.getElementById('eventTitle').textContent;
             const events = JSON.parse(localStorage.getItem('events')) || [];
-            const eventIndex = events.findIndex(e => e.title === currentEventName);
+            const eventIndex = events.findIndex(e => e.title === currentEventTitle);
 
             if (eventIndex !== -1) {
                 const event = events[eventIndex];
