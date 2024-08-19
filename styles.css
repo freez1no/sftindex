@@ -1,1 +1,63 @@
+/* 기존 스타일 코드 유지 */
 
+/* 페이지 섹션 숨기기 */
+.page-section {
+    display: none;
+}
+
+/* 메인 화면 섹션만 기본으로 표시 */
+#mainSection {
+    display: block;
+}
+
+/* 행사 목록 스타일 */
+.event-list, .favorites-list {
+    padding: 10px;
+}
+
+.event-item, .favorite-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.event-item img, .favorite-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.event-item h3, .favorite-item h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.event-item p, .favorite-item p {
+    margin: 5px 0;
+}
+
+.event-item button, .favorite-item button {
+    padding: 5px 10px;
+    margin-top: 10px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.event-category {
+    margin-bottom: 15px;
+}
+
+.event-category button {
+    margin-right: 10px;
+    padding: 5px 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
