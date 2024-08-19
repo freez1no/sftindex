@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>행사 비교</title>
+    <style>
+        /* 페이지 스타일 추가 */
+    </style>
+</head>
+<body>
+    <header>
+        <h1>행사 비교</h1>
+    </header>
+
+    <div class="container">
+        <div id="comparisonTable"></div>
+        <button onclick="window.history.back()">이전 페이지로 돌아가기</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedEvents = JSON.parse(decodeURIComponent(urlParams.get('events')));
+
+            const comparisonTable = document.getElementById('comparisonTable');
+            selectedEvents.forEach(event => {
+                // 여기서 event 데이터를 바탕으로 각 행사 정보를 테이블로 추가
+                const eventDiv = document.createElement('div');
+                eventDiv.innerHTML = `
+                    <h3>${event}</h3>
+                    <p>서비스 리스트: ...</p>
+                    <p>최소 비용: ...</p>
+                `;
+                comparisonTable.appendChild(eventDiv);
+            });
+        });
+    </script>
+</body>
+</html>
