@@ -59,11 +59,15 @@
         }
         .event-detail div {
             flex: 2;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f4f4f4;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .event-detail h2 {
             margin-top: 0;
         }
-        .event-detail p {
+        .event-detail p, .event-detail ul {
             margin: 10px 0;
             line-height: 1.6;
         }
@@ -87,6 +91,8 @@
     <div class="container">
         <div class="button-container">
             <button onclick="window.history.back()">뒤로 가기</button>
+            <button id="editButton" onclick="enableEditing()">수정</button>
+            <button id="saveButton" style="display:none;" onclick="saveChanges()">저장</button>
         </div>
 
         <section class="event-detail">
@@ -105,44 +111,61 @@
     </div>
 
     <script>
+        let currentEventName = '';
+
         document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
-            const eventName = urlParams.get('name');
+            currentEventName = urlParams.get('name');
 
-            // 여기서 eventName에 따라 실제 행사 데이터를 불러와서 페이지에 표시합니다.
-            // 예시 데이터
-            const eventDetails = {
-                '해쉬엔터테인먼트코리아': {
-                    description: '해쉬엔터테인먼트코리아는 다양한 행사 서비스를 제공합니다.',
-                    services: ['서비스 1', '서비스 2', '서비스 3'],
-                    minPrice: '500,000원'
-                },
-                '(주)클리프': {
-                    description: '(주)클리프는 중대형 행사를 전문으로 합니다.',
-                    services: ['서비스 A', '서비스 B', '서비스 C'],
-                    minPrice: '1,200,000원'
-                },
-                '엣지랭크': {
-                    description: '엣지랭크는 대형 이벤트를 기획하고 실행합니다.',
-                    services: ['서비스 X', '서비스 Y', '서비스 Z'],
-                    minPrice: '2,500,000원'
-                }
-            };
+            const eventDetails = JSON.parse(localStorage.getItem('events')) || [];
 
-            if (eventDetails[eventName]) {
-                document.getElementById('eventName').textContent = eventName;
-                document.getElementById('eventDescription').textContent = eventDetails[eventName].description;
-                
+            const event = eventDetails.find(e => e.title === currentEventName);
+            if (event) {
+                document.getElementById('eventName').textContent = event.title;
+                document.getElementById('eventDescription').textContent = event.content;
+                document.getElementById('minPrice').textContent = event.price + '원';
+
                 const serviceList = document.getElementById('serviceList');
-                eventDetails[eventName].services.forEach(service => {
+                event.services.forEach(service => {
                     const li = document.createElement('li');
                     li.textContent = service;
                     serviceList.appendChild(li);
                 });
-
-                document.getElementById('minPrice').textContent = eventDetails[eventName].minPrice;
             }
         });
+
+        function enableEditing() {
+            document.getElementById('eventDescription').contentEditable = true;
+            document.getElementById('minPrice').contentEditable = true;
+            document.getElementById('serviceList').contentEditable = true;
+            document.getElementById('editButton').style.display = 'none';
+            document.getElementById('saveButton').style.display = 'inline-block';
+        }
+
+        function saveChanges() {
+            const updatedDescription = document.getElementById('eventDescription').textContent;
+            const updatedPrice = document.getElementById('minPrice').textContent.replace('원', '');
+            const updatedServices = Array.from(document.getElementById('serviceList').children).map(li => li.textContent);
+
+            let events = JSON.parse(localStorage.getItem('events')) || [];
+
+            const eventIndex = events.findIndex(e => e.title === currentEventName);
+            if (eventIndex > -1) {
+                events[eventIndex].content = updatedDescription;
+                events[eventIndex].price = updatedPrice;
+                events[eventIndex].services = updatedServices;
+                localStorage.setItem('events', JSON.stringify(events));
+
+                alert('행사 정보가 수정되었습니다.');
+
+                document.getElementById('eventDescription').contentEditable = false;
+                document.getElementById('minPrice').contentEditable = false;
+                document.getElementById('serviceList').contentEditable = false;
+                document.getElementById('editButton').style.display = 'inline-block';
+                document.getElementById('saveButton').style.display = 'none';
+            }
+        }
     </script>
+    
 </body>
 </html>
