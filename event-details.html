@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>행사 상세보기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 15px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .button-container button {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 0 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .button-container button:hover {
+            background-color: #555;
+        }
+        .event-detail {
+            display: flex;
+            flex-wrap: wrap;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .event-detail img {
+            flex: 1;
+            max-width: 300px;
+            margin-right: 20px;
+            border-radius: 8px;
+        }
+        .event-detail div {
+            flex: 2;
+        }
+        .event-detail h2 {
+            margin-top: 0;
+        }
+        .event-detail p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .event-detail ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .event-detail ul li {
+            background: #e7e7e7;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>행사 상세보기</h1>
+    </header>
+
+    <div class="container">
+        <div class="button-container">
+            <button onclick="window.history.back()">뒤로 가기</button>
+        </div>
+
+        <section class="event-detail">
+            <img src="image-placeholder.jpg" alt="행사 이미지">
+            <div>
+                <h2 id="eventName">행사 이름</h2>
+                <p id="eventDescription">행사에 대한 상세 설명이 여기에 표시됩니다.</p>
+                <h3>서비스 목록:</h3>
+                <ul id="serviceList">
+                    <!-- 서비스 항목들이 여기에 추가됩니다. -->
+                </ul>
+                <h3>최소 비용:</h3>
+                <p id="minPrice">금액 정보가 여기에 표시됩니다.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventName = urlParams.get('name');
+
+            // 여기서 eventName에 따라 실제 행사 데이터를 불러와서 페이지에 표시합니다.
+            // 예시 데이터
+            const eventDetails = {
+                '해쉬엔터테인먼트코리아': {
+                    description: '해쉬엔터테인먼트코리아는 다양한 행사 서비스를 제공합니다.',
+                    services: ['서비스 1', '서비스 2', '서비스 3'],
+                    minPrice: '500,000원'
+                },
+                '(주)클리프': {
+                    description: '(주)클리프는 중대형 행사를 전문으로 합니다.',
+                    services: ['서비스 A', '서비스 B', '서비스 C'],
+                    minPrice: '1,200,000원'
+                },
+                '엣지랭크': {
+                    description: '엣지랭크는 대형 이벤트를 기획하고 실행합니다.',
+                    services: ['서비스 X', '서비스 Y', '서비스 Z'],
+                    minPrice: '2,500,000원'
+                }
+            };
+
+            if (eventDetails[eventName]) {
+                document.getElementById('eventName').textContent = eventName;
+                document.getElementById('eventDescription').textContent = eventDetails[eventName].description;
+                
+                const serviceList = document.getElementById('serviceList');
+                eventDetails[eventName].services.forEach(service => {
+                    const li = document.createElement('li');
+                    li.textContent = service;
+                    serviceList.appendChild(li);
+                });
+
+                document.getElementById('minPrice').textContent = eventDetails[eventName].minPrice;
+            }
+        });
+    </script>
+</body>
+</html>
