@@ -147,6 +147,36 @@
             <button id="compareButton" onclick="compareSelected()">비교하기</button>
         </div>
     </div>
+    <script>
+        // 기존 compareSelected 함수와 관련된 스크립트 유지
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 로컬 스토리지에서 행사 목록 불러오기
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+
+            // 행사 목록 표시할 컨테이너
+            const eventList = document.querySelector('.event-list');
+
+            events.forEach(event => {
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                eventItem.innerHTML = `
+                    <input type="checkbox" onchange="toggleCompare('${event.title}')">
+                    <img src="image-placeholder.jpg" alt="행사 이미지">
+                    <div>
+                        <h3>${event.title}</h3>
+                        <p>${event.subtitle}</p>
+                        <p>${event.content}</p>
+                        <p>${event.price}원</p>
+                        <p>연락처: ${event.contact}</p>
+                        <button onclick="location.href='event-details.html?name=${event.title}'">상세 보기</button>
+                    </div>
+                `;
+
+                eventList.appendChild(eventItem);
+            });
+        });
+    </script>
 
     <script>
         let selectedEvents = [];
@@ -156,7 +186,7 @@
 
             if (index > -1) {
                 selectedEvents.splice(index, 1);
-            } else {4
+            } else {
                 if (selectedEvents.length < 4) {
                     selectedEvents.push(eventName);
                 } else {
@@ -169,13 +199,22 @@
         }
 
         function compareSelected() {
-            if (selectedEvents.length < 2) {
-                alert('최소 2개의 행사 이상을 선택해야 비교할 수 있습니다.');
-                return;
-            }
-            // 선택한 행사의 정보를 비교 페이지로 전달
-        window.location.href = 'compare.html?events=' + encodeURIComponent(JSON.stringify(selectedEvents));
+        if (selectedEvents.length < 2) {
+            alert('최소 2개의 행사 이상을 선택해야 비교할 수 있습니다.');
+            return;
         }
+
+        // 선택한 행사들을 비교 처리 (여기서는 단순히 알림으로 표시)
+        const url = 'compare.html?events=' + encodeURIComponent(JSON.stringify(selectedEvents));
+        window.location.href = url
+
+        // 비교 후 체크박스 초기화
+        const checkboxes = document.querySelectorAll('.event-item input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = false);
+
+        // 선택된 행사 목록 초기화
+        selectedEvents = [];
+    }
     </script>
 </body>
 </html>
