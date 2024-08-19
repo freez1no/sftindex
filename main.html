@@ -103,6 +103,7 @@
 
             <!-- 행사 항목 1 -->
             <div class="event-item">
+                <input type="checkbox" onchange="toggleCompare('해쉬엔터테인먼트코리아')" />
                 <img src="image1.jpg" alt="행사 이미지 1">
                 <div>
                     <h3>해쉬엔터테인먼트코리아</h3>
@@ -115,6 +116,7 @@
 
             <!-- 행사 항목 2 -->
             <div class="event-item">
+                <input type="checkbox" onchange="toggleCompare('(주)클리프')" />
                 <img src="image2.jpg" alt="행사 이미지 2">
                 <div>
                     <h3>(주)클리프</h3>
@@ -127,6 +129,7 @@
 
             <!-- 행사 항목 3 -->
             <div class="event-item">
+                <input type="checkbox" onchange="toggleCompare('엣지랭크')" />
                 <img src="image3.jpg" alt="행사 이미지 3">
                 <div>
                     <h3>엣지랭크</h3>
@@ -153,7 +156,7 @@
 
             if (index > -1) {
                 selectedEvents.splice(index, 1);
-            } else {
+            } else {4
                 if (selectedEvents.length < 4) {
                     selectedEvents.push(eventName);
                 } else {
@@ -170,7 +173,8 @@
                 alert('최소 2개의 행사 이상을 선택해야 비교할 수 있습니다.');
                 return;
             }
-            alert('비교할 행사: ' + selectedEvents.join(', '));
+            // 선택한 행사의 정보를 비교 페이지로 전달
+        window.location.href = 'compare.html?events=' + encodeURIComponent(JSON.stringify(selectedEvents));
         }
     </script>
 </body>
