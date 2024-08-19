@@ -10,15 +10,47 @@
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            overflow: hidden; /* 로딩 중일 때 스크롤 방지 */
+        }
+        /* 로딩 화면 스타일 */
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+        #loadingScreen img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 이미지가 화면에 맞게 조정되도록 설정 */
+        }
+        /* 페이지 컨텐츠 스타일 */
+        .hidden {
+            display: none;
         }
         header {
             background-color: #333;
             color: #fff;
             padding: 15px 0;
             text-align: center;
+            position: relative;
         }
         header h1 {
             margin: 0;
+        }
+        #points {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 16px;
+            color: #ffcc00;
         }
         nav {
             text-align: center;
@@ -39,9 +71,6 @@
             width: 80%;
             margin: 20px auto;
             padding: 20px;
-        }
-        .hidden {
-            display: none;
         }
         .form-group {
             margin-bottom: 20px;
@@ -281,16 +310,52 @@
     </style>
 </head>
 <body>
-    <header>
+    <!-- 로딩 화면 -->
+    <div id="loadingScreen">
+        <img src="header.jpg" alt="Loading...">
+    </div>
+
+    <header class="hidden">
         <h1>행캠 대행사</h1>
+        <div id="points">보유 포인트: 0</div>
     </header>
-    <nav>
+    <nav class="hidden">
+        <a href="#" onclick="showSection('premium')">프리미엄</a>
+        <a href="#" onclick="showSection('buyPoints')">포인트 구매</a>
         <a href="#" onclick="showSection('eventList')">행사 목록</a>
         <a href="#" onclick="showSection('promotionList')">행사 팀 홍보</a>
         <a href="#" onclick="showSection('registerEvent')">행사 등록</a>
     </nav>
 
-    <div class="container">
+    <div class="container hidden">
+        <!-- 프리미엄 섹션 -->
+        <section id="premium" class="hidden">
+            <h2>프리미엄 서비스</h2>
+            <div class="premium-list"></div>
+        </section>
+
+        <!-- 포인트 구매 섹션 -->
+        <section id="buyPoints" class="hidden">
+            <h2>포인트 구매</h2>
+            <div>
+                <p>1000포인트: ₩1,000</p>
+                <button onclick="buyPoints(1000)">구매</button>
+            </div>
+            <div>
+                <p>3000포인트: ₩3,000</p>
+                <button onclick="buyPoints(3000)">구매</button>
+            </div>
+            <div>
+                <p>5000포인트: ₩5,000</p>
+                <button onclick="buyPoints(5000)">구매</button>
+            </div>
+            <div>
+                <h3>프리미엄 구독</h3>
+                <p>5000포인트</p>
+                <button onclick="buyPremium()">구매</button>
+            </div>
+        </section>
+
         <!-- 행사 목록 섹션 -->
         <section id="eventList" class="hidden">
             <h2>홍보하는 행사 목록</h2>
@@ -318,6 +383,7 @@
                     <select id="category" name="category" required>
                         <option value="event">행사 목록</option>
                         <option value="promotion">행사 팀 홍보</option>
+                        <option value="premium" id="premiumOption" class="hidden">프리미엄</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -369,7 +435,7 @@
         <section id="eventDetails" class="hidden">
             <div class="button-container">
                 <button onclick="showSection('eventList')">뒤로 가기</button>
-                <button onclick="applyForEvent()">신청하기</button>
+                <button onclick="applyForEvent()">즐겨찾기</button>
                 <button onclick="showReviewForm()">리뷰 쓰기</button>
             </div>
 
@@ -406,9 +472,9 @@
 
         <!-- 신청 목록 섹션 -->
         <section id="appliedEvents" class="hidden">
-            <h2>신청한 행사 목록</h2>
+            <h2>즐겨찾기한 행사 목록</h2>
             <div class="event-list" id="appliedList">
-                <!-- 신청한 행사 목록이 여기에 표시됩니다 -->
+                <!-- 즐겨찾기한 행사 목록이 여기에 표시됩니다 -->
             </div>
         </section>
 
@@ -442,9 +508,9 @@
     </div>
 
     <!-- 하단 고정 네비게이션 바 -->
-    <div class="bottom-nav">
-        <button onclick="showSection('eventList')">
-            <img src="home-button.png" alt="홈">
+    <div class="bottom-nav hidden">
+        <button onclick="showSection('premium')">
+            <img src="home-button.png" alt="프리미엄">
         </button>
         <button onclick="showSection('appliedEvents'); loadAppliedList()">
             <img src="menu-button.png" alt="메뉴">
@@ -454,30 +520,39 @@
     <script>
         let currentEventTitle = '';
         let appliedEvents = JSON.parse(localStorage.getItem('appliedEvents')) || [];
-
+        let userPoints = JSON.parse(localStorage.getItem('userPoints')) || 0;
+        let premiumPurchased = JSON.parse(localStorage.getItem('premiumPurchased')) || false;
+    
+        document.getElementById('points').textContent = `보유 포인트: ${userPoints}`;
+    
         document.addEventListener('DOMContentLoaded', function() {
-            showSection('eventList');
+            showSection('premium');
             loadEventList();
             loadPromotionList();
-
+            loadPremiumList(); // 프리미엄 목록도 불러옴
+    
             document.getElementById('registerForm').addEventListener('submit', function (event) {
                 event.preventDefault();
                 registerEvent();
             });
-
+    
             document.getElementById('reviewFormElement').addEventListener('submit', function(event) {
                 event.preventDefault();
                 submitReview();
             });
-
+    
             const stars = document.querySelectorAll('#starRating span');
             stars.forEach(star => {
                 star.addEventListener('click', function() {
                     setRating(this.getAttribute('data-value'));
                 });
             });
+    
+            if (premiumPurchased) {
+                document.getElementById('premiumOption').classList.remove('hidden');
+            }
         });
-
+    
         function showSection(sectionId) {
             const sections = document.querySelectorAll('section');
             sections.forEach(section => {
@@ -488,20 +563,24 @@
                 }
             });
         }
-
+    
         function loadEventList() {
             loadCategoryList('event', '.event-list');
         }
-
+    
         function loadPromotionList() {
             loadCategoryList('promotion', '.promotion-list');
         }
-
+    
+        function loadPremiumList() {
+            loadCategoryList('premium', '.premium-list');
+        }
+    
         function loadCategoryList(category, selector) {
             const events = JSON.parse(localStorage.getItem('events')) || [];
             const eventList = document.querySelector(selector);
             eventList.innerHTML = '';
-
+    
             events.filter(event => event.category === category).forEach((event, index) => {
                 const eventItemWrapper = document.createElement('div');
                 eventItemWrapper.className = 'event-item-wrapper';
@@ -518,11 +597,11 @@
                         <button class="delete-button" onclick="deleteEvent(${index})">삭제</button>
                     </label>
                 `;
-
+    
                 eventList.appendChild(eventItemWrapper);
             });
         }
-
+    
         function registerEvent() {
             const category = document.getElementById('category').value;
             const title = document.getElementById('title').value;
@@ -532,15 +611,15 @@
             const prices = Array.from(document.getElementsByName('prices[]')).map(input => input.value);
             const contact = document.getElementById('contact').value;
             const photoFiles = document.getElementById('photos').files;
-
+    
             if (photoFiles.length === 0) {
                 alert('최소 한 개의 사진을 업로드해야 합니다.');
                 return;
             }
-
+    
             const photos = [];
             let loadedImages = 0;
-
+    
             for (let i = 0; i < photoFiles.length; i++) {
                 const reader = new FileReader();
                 reader.onload = function (event) {
@@ -552,7 +631,7 @@
                 };
                 reader.readAsDataURL(photoFiles[i]);
             }
-
+    
             function saveEvent(photos) {
                 const newEvent = {
                     category,
@@ -565,18 +644,23 @@
                     photo: photos[0], // 첫 번째 사진을 사용
                     reviews: [] // 리뷰를 위한 필드 추가
                 };
-
+    
                 const events = JSON.parse(localStorage.getItem('events')) || [];
                 events.push(newEvent);
                 localStorage.setItem('events', JSON.stringify(events));
-
+    
                 alert('행사가 성공적으로 등록되었습니다.');
                 loadEventList();
                 loadPromotionList();
-                showSection('eventList');
+                loadPremiumList(); // 프리미엄 리스트도 로드
+                if (category === 'premium') {
+                    showSection('premium');
+                } else {
+                    showSection('eventList');
+                }
             }
         }
-
+    
         function addServiceField() {
             const serviceFields = document.getElementById('serviceFields');
             const serviceIndex = serviceFields.children.length + 1;
@@ -590,11 +674,11 @@
             `;
             serviceFields.appendChild(newField);
         }
-
+    
         function showEventDetails(eventTitle) {
             const events = JSON.parse(localStorage.getItem('events')) || [];
             const event = events.find(e => e.title === eventTitle);
-
+    
             if (event) {
                 currentEventTitle = event.title;
                 document.getElementById('eventPhoto').src = event.photo;
@@ -609,19 +693,19 @@
                     serviceItem.textContent = `${service}: ${event.prices[index]}원`;
                     eventServices.appendChild(serviceItem);
                 });
-
+    
                 document.getElementById('eventContact').textContent = event.contact;
-
+    
                 loadReviews(event.reviews);
-
+    
                 showSection('eventDetails');
             }
         }
-
+    
         function loadReviews(reviews) {
             const reviewContainer = document.getElementById('reviews');
             reviewContainer.innerHTML = '';
-
+    
             reviews.forEach(review => {
                 const reviewItem = document.createElement('div');
                 reviewItem.className = 'review-item';
@@ -633,14 +717,14 @@
                 reviewContainer.appendChild(reviewItem);
             });
         }
-
+    
         function showReviewForm() {
             setRating(0); // 초기 평점을 0으로 설정
             document.getElementById('reviewText').value = '';
             document.getElementById('reviewPhotos').value = '';
             showSection('reviewForm');
         }
-
+    
         function setRating(rating) {
             const stars = document.querySelectorAll('#starRating span');
             stars.forEach(star => {
@@ -651,20 +735,20 @@
             });
             document.getElementById('reviewFormElement').dataset.rating = rating;
         }
-
+    
         function submitReview() {
             const reviewText = document.getElementById('reviewText').value;
             const reviewRating = document.getElementById('reviewFormElement').dataset.rating;
             const photoFiles = document.getElementById('reviewPhotos').files;
-
+    
             if (!reviewText || reviewRating === '0') {
                 alert('리뷰 내용을 입력하고 평점을 선택하세요.');
                 return;
             }
-
+    
             const photos = [];
             let loadedImages = 0;
-
+    
             for (let i = 0; i < photoFiles.length; i++) {
                 const reader = new FileReader();
                 reader.onload = function (event) {
@@ -676,25 +760,25 @@
                 };
                 reader.readAsDataURL(photoFiles[i]);
             }
-
+    
             if (photoFiles.length === 0) {
                 saveReview(photos); // 사진이 없을 경우 바로 저장
             }
-
+    
             function saveReview(photos) {
                 const newReview = {
                     text: reviewText,
                     rating: parseInt(reviewRating),
                     photos: photos
                 };
-
+    
                 const events = JSON.parse(localStorage.getItem('events')) || [];
                 const eventIndex = events.findIndex(e => e.title === currentEventTitle);
-
+    
                 if (eventIndex !== -1) {
                     events[eventIndex].reviews.push(newReview);
                     localStorage.setItem('events', JSON.stringify(events));
-
+    
                     alert('리뷰가 성공적으로 등록되었습니다.');
                     showEventDetails(currentEventTitle);
                 } else {
@@ -702,24 +786,24 @@
                 }
             }
         }
-
+    
         function applyForEvent() {
             if (!appliedEvents.includes(currentEventTitle)) {
                 appliedEvents.push(currentEventTitle);
                 localStorage.setItem('appliedEvents', JSON.stringify(appliedEvents));
-                alert("신청이 완료되었습니다!");
+                alert("즐겨찾기가 완료되었습니다!");
             } else {
-                alert("이미 신청된 행사입니다.");
+                alert("이미 즐겨찾기된 목록입니다.");
             }
         }
-
+    
         function loadAppliedList() {
             const appliedList = document.getElementById('appliedList');
             appliedList.innerHTML = '';
-
+    
             const events = JSON.parse(localStorage.getItem('events')) || [];
-
-            appliedEvents.forEach(title => {
+    
+            appliedEvents.forEach((title, index) => {
                 const event = events.find(e => e.title === title);
                 if (event) {
                     const eventItem = document.createElement('div');
@@ -731,6 +815,7 @@
                                 <h3>${event.title}</h3>
                                 <p>${event.subtitle}</p>
                             </div>
+                            <button class="delete-button" onclick="removeFromApplied(${index})">삭제</button>
                         </div>
                     `;
                     appliedList.appendChild(eventItem);
@@ -738,6 +823,14 @@
             });
         }
 
+        function removeFromApplied(index) {
+            if (index > -1) {
+                appliedEvents.splice(index, 1);
+                localStorage.setItem('appliedEvents', JSON.stringify(appliedEvents));
+                loadAppliedList();
+            }
+        }
+    
         function deleteEvent(index) {
             const events = JSON.parse(localStorage.getItem('events')) || [];
             if (index > -1) {
@@ -745,20 +838,21 @@
                 localStorage.setItem('events', JSON.stringify(events));
                 loadEventList();
                 loadPromotionList();
+                loadPremiumList();
             }
         }
-
+    
         function compareSelected() {
             const selectedTitles = Array.from(document.querySelectorAll('.event-checkbox:checked')).map(input => input.value);
             const events = JSON.parse(localStorage.getItem('events')) || [];
             const compareGrid = document.getElementById('compareGrid');
             compareGrid.innerHTML = '';
-
+    
             if (selectedTitles.length < 2 || selectedTitles.length > 4) {
                 alert('비교를 위해 최소 2개, 최대 4개의 행사를 선택하세요.');
                 return;
             }
-
+    
             selectedTitles.forEach(title => {
                 const event = events.find(e => e.title === title);
                 if (event) {
@@ -772,9 +866,47 @@
                     compareGrid.appendChild(compareItem);
                 }
             });
-
+    
             showSection('compareEvents');
         }
+    
+        function buyPoints(points) {
+            userPoints += points;
+            localStorage.setItem('userPoints', JSON.stringify(userPoints));
+            document.getElementById('points').textContent = `보유 포인트: ${userPoints}`;
+            alert(`${points} 포인트가 성공적으로 구매되었습니다.`);
+        }
+    
+        function buyPremium() {
+            if (userPoints >= 5000) {
+                userPoints -= 5000;
+                premiumPurchased = true;
+                localStorage.setItem('userPoints', JSON.stringify(userPoints));
+                localStorage.setItem('premiumPurchased', JSON.stringify(premiumPurchased));
+                document.getElementById('points').textContent = `보유 포인트: ${userPoints}`;
+                document.getElementById('premiumOption').classList.remove('hidden');
+                alert('프리미엄 구독이 성공적으로 구매되었습니다.');
+            } else {
+                alert('포인트가 부족합니다. 포인트를 충전해주세요.');
+            }
+        }
+
+        // 로딩 화면 처리
+        window.onload = function() {
+            setTimeout(function() {
+                const loadingScreen = document.getElementById('loadingScreen');
+                loadingScreen.style.opacity = '0';
+                setTimeout(function() {
+                    loadingScreen.style.display = 'none';
+                    document.querySelector('header').classList.remove('hidden');
+                    document.querySelector('nav').classList.remove('hidden');
+                    document.querySelector('.container').classList.remove('hidden');
+                    document.querySelector('.bottom-nav').classList.remove('hidden');
+                    document.body.style.overflow = 'auto'; // 로딩이 끝난 후 스크롤 허용
+                }, 1000); // 3초 후 로딩 화면 제거
+            }, 1000); // 로딩 화면을 3초 동안 표시
+        };
     </script>
+    
 </body>
 </html>
