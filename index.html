@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>행캠 대행사</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>행캠 대행사</h1>
+    </header>
+    <nav>
+        <a href="#" onclick="showSection('eventList')">행사 목록</a>
+        <a href="#" onclick="showSection('registerEvent')">행사 등록</a>
+        <a href="#" onclick="showSection('favorites')">즐겨찾기</a>
+    </nav>
+
+    <div class="container">
+        <!-- 행사 목록 섹션 -->
+        <section id="eventList" class="hidden">
+            <h2>홍보하는 행사 목록</h2>
+            <div class="event-list"></div>
+            <div class="compare-container">
+                <button id="compareButton" onclick="compareSelected()">비교하기</button>
+            </div>
+        </section>
+
+        <!-- 행사 등록 섹션 -->
+        <section id="registerEvent" class="hidden">
+            <h2>행사 등록</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="title">업체 이름</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="subtitle">부제목</label>
+                    <input type="text" id="subtitle" name="subtitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="introduction">업체 소개</label>
+                    <textarea id="introduction" name="introduction" required></textarea>
+                </div>
+                <div id="serviceFields">
+                    <div class="form-group">
+                        <label for="service1">서비스 1</label>
+                        <input type="text" id="service1" name="services[]" required>
+                        <label for="price1">가격 1</label>
+                        <input type="number" id="price1" name="prices[]" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="button" onclick="addServiceField()">서비스 추가</button>
+                </div>
+                <div class="form-group">
+                    <label for="contact">연락처</label>
+                    <input type="text" id="contact" name="contact" required>
+                </div>
+                <div class="form-group">
+                    <label for="photos">업체 사진</label>
+                    <input type="file" id="photos" name="photos" multiple accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit">등록</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- 즐겨찾기 섹션 -->
+        <section id="favorites" class="hidden">
+            <h2>즐겨찾기한 행사</h2>
+            <div class="event-list"></div>
+        </section>
+
+        <!-- 행사 비교 섹션 -->
+        <section id="compareEvents" class="hidden">
+            <h2>행사 비교</h2>
+            <div class="compare-grid" id="compareGrid">
+                <!-- 선택된 행사 목록이 로드됩니다 -->
+            </div>
+        </section>
+
+        <!-- 행사 상세보기 섹션 -->
+        <section id="eventDetails" class="hidden">
+            <div class="button-container">
+                <button onclick="showSection('eventList')">뒤로 가기</button>
+                <button onclick="toggleFavorite()">즐겨찾기</button>
+                <button onclick="showSection('reviewSection')">리뷰 작성</button>
+            </div>
+
+            <div class="event-detail">
+                <div>
+                    <h2 id="eventTitle">업체</h2>
+                    <p id="eventSubtitle">부제목</p>
+                </div>
+                <div class="event-image">
+                    <img id="eventPhoto" src="" alt="업체 사진">
+                </div>
+                <div>
+                    <h3>업체 소개:</h3>
+                    <p id="eventIntroduction">업체 소개 내용이 여기에 표시됩니다.</p>
+                </div>
+                <div id="eventServices">
+                    <h3>서비스 목록:</h3>
+                    <!-- 서비스 목록이 여기에 표시됩니다 -->
+                </div>
+                <div>
+                    <h3>연락처:</h3>
+                    <p id="eventContact">연락처 정보가 여기에 표시됩니다.</p>
+                </div>
+                <div class="review-container">
+                    <h3>리뷰</h3>
+                    <ul id="reviewList">
+                        <!-- 리뷰 목록이 여기에 표시됩니다 -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 리뷰 작성 섹션 -->
+        <section id="reviewSection" class="hidden">
+            <div class="button-container">
+                <button onclick="showSection('eventDetails')">뒤로 가기</button>
+            </div>
+
+            <div class="form-group">
+                <label for="reviewText">리뷰 작성</label>
+                <textarea id="reviewText" placeholder="리뷰를 작성하세요..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="rating">별점 주기</label>
+                <div class="rating">
+                    <input type="radio" id="star5" name="rating" value="5"><label for="star5"></label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4"></label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3"></label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2"></label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1"></label>
+                </div>
+            </div>
+            <div class="form-group">
+                <button onclick="submitReview()">리뷰 제출</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- 하단 고정 네비게이션 바 -->
+    <div class="bottom-nav hidden">
+        <button onclick="showSection('eventList')">
+            <img src="home-button.png" alt="행사 목록">
+        </button>
+        <button onclick="showSection('appliedEvents'); loadAppliedList()">
+            <img src="menu-button.png" alt="메뉴">
+        </button>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
