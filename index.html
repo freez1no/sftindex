@@ -4,21 +4,554 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>행캠 대행사</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 15px 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        nav {
+            text-align: center;
+            background-color: #444;
+            padding: 10px;
+        }
+        nav a {
+            color: #fff;
+            margin: 0 10px;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+        }
+        nav a:hover {
+            background-color: #555;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .form-group input[type="file"] {
+            font-size: 16px;
+        }
+        .form-group textarea {
+            resize: vertical;
+            height: 150px;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #555;
+        }
+        .event-item-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .event-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            text-align: left;
+            text-decoration: none;
+            color: #333;
+        }
+        .event-item img {
+            width: 150px;
+            height: 100px;
+            object-fit: cover;
+            margin-right: 20px;
+            border-radius: 8px;
+        }
+        .event-item div {
+            flex: 1;
+        }
+        .event-item h3 {
+            margin: 0 0 10px;
+            font-size: 20px;
+        }
+        .event-item p {
+            margin: 0;
+            font-size: 16px;
+            color: #666;
+        }
+        .compare-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .compare-container button {
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .compare-container button:hover {
+            background-color: #218838;
+        }
+        .event-detail {
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .event-detail div {
+            margin-bottom: 15px;
+        }
+        .event-detail h2 {
+            margin-top: 0;
+        }
+        .event-detail p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+        .event-detail h3 {
+            margin-bottom: 5px;
+        }
+        .event-image img {
+            width: 80%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .button-container button {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            background-color: #333;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 0 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .button-container button:hover {
+            background-color: #555;
+        }
+        .compare-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .compare-item {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .compare-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .compare-item h3 {
+            margin-top: 15px;
+            font-size: 18px;
+            color: #333;
+        }
+        .compare-item p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #666;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 <body>
     <header>
         <h1>행캠 대행사</h1>
     </header>
+    <nav>
+        <a href="#" onclick="showSection('eventList')">행사 대행 업체 목록</a>
+        <a href="#" onclick="showSection('promotionList')">행사 팀 홍보</a>
+        <a href="#" onclick="showSection('registerEvent')">행사 등록</a>
+    </nav>
 
-    <div id="loading-screen">
-        <img src="header.jpg" alt="Loading..." />
+    <div class="container">
+        <!-- 행사 목록 섹션 -->
+        <section id="eventList" class="hidden">
+            <h2>행사 대행사 목록</h2>
+            <div class="event-list"></div>
+            <div class="compare-container">
+                <button id="compareButton" onclick="compareSelected()">비교하기</button>
+            </div>
+        </section>
+
+        <!-- 행사 팀 홍보 섹션 -->
+        <section id="promotionList" class="hidden">
+            <h2>홍보하는 행사 팀 목록</h2>
+            <div class="promotion-list"></div>
+            <div class="compare-container">
+                <button id="compareButton" onclick="compareSelected()">비교하기</button>
+            </div>
+        </section>
+
+        <!-- 행사 등록 섹션 -->
+        <section id="registerEvent" class="hidden">
+            <h2>행사 등록</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="category">카테고리</label>
+                    <select id="category" name="category" required>
+                        <option value="event">행사 대행 업체</option>
+                        <option value="promotion">행사 팀 홍보</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="title">업체 이름</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="subtitle">부제목</label>
+                    <input type="text" id="subtitle" name="subtitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="introduction">업체 소개</label>
+                    <textarea id="introduction" name="introduction" required></textarea>
+                </div>
+                <div id="serviceFields">
+                    <div class="form-group">
+                        <label for="service1">서비스 1</label>
+                        <input type="text" id="service1" name="services[]" required>
+                        <label for="price1">가격 1</label>
+                        <input type="number" id="price1" name="prices[]" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="button" onclick="addServiceField()">서비스 추가</button>
+                </div>
+                <div class="form-group">
+                    <label for="contact">연락처</label>
+                    <input type="text" id="contact" name="contact" required>
+                </div>
+                <div class="form-group">
+                    <label for="photos">업체 사진</label>
+                    <input type="file" id="photos" name="photos" multiple accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit">등록</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- 행사 비교 섹션 -->
+        <section id="compareEvents" class="hidden">
+            <h2>행사 비교</h2>
+            <div class="compare-grid" id="compareGrid">
+                <!-- 선택된 행사 목록이 로드됩니다 -->
+            </div>
+        </section>
+
+        <!-- 행사 상세보기 섹션 -->
+        <section id="eventDetails" class="hidden">
+            <div class="button-container">
+                <button onclick="showSection('eventList')">뒤로 가기</button>
+                <button onclick="applyForEvent()">신청하기</button>
+                <button onclick="editEvent()">수정하기</button>
+            </div>
+
+            <div class="event-detail">
+                <div>
+                    <h2 id="eventTitle">업체</h2>
+                    <p id="eventSubtitle">부제목</p>
+                </div>
+                <div class="event-image">
+                    <img id="eventPhoto" src="" alt="업체 사진">
+                </div>
+                <div>
+                    <h3>업체 소개:</h3>
+                    <p id="eventIntroduction">업체 소개 내용이 여기에 표시됩니다.</p>
+                </div>
+                <div id="eventServices">
+                    <h3>서비스 목록:</h3>
+                    <!-- 서비스 목록이 여기에 표시됩니다 -->
+                </div>
+                <div>
+                    <h3>연락처:</h3>
+                    <p id="eventContact">연락처 정보가 여기에 표시됩니다.</p>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <div class="container" id="content">
-        <!-- 여기에서 JavaScript로 동적으로 내용을 로드합니다 -->
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('eventList');
+            loadEventList();
+            loadPromotionList();
 
-    <script src="scripts.js"></script>
+            document.getElementById('registerForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                registerEvent();
+            });
+        });
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                if (section.id === sectionId) {
+                    section.classList.remove('hidden');
+                } else {
+                    section.classList.add('hidden');
+                }
+            });
+        }
+
+        function loadEventList() {
+            loadCategoryList('event', '.event-list');
+        }
+
+        function loadPromotionList() {
+            loadCategoryList('promotion', '.promotion-list');
+        }
+
+        function loadCategoryList(category, selector) {
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+            const eventList = document.querySelector(selector);
+            eventList.innerHTML = '';
+
+            events.filter(event => event.category === category).forEach((event, index) => {
+                const eventItemWrapper = document.createElement('div');
+                eventItemWrapper.className = 'event-item-wrapper';
+                eventItemWrapper.innerHTML = `
+                    <label>
+                        <input type="checkbox" class="event-checkbox" value="${event.title}">
+                        <a class="event-item" href="#" onclick="showEventDetails('${event.title}')">
+                            <img src="${event.photo}" alt="행사 이미지">
+                            <div>
+                                <h3>${event.title}</h3>
+                                <p>${event.subtitle}</p>
+                            </div>
+                        </a>
+                        <button class="delete-button" onclick="deleteEvent(${index})">삭제</button>
+                    </label>
+                `;
+
+                eventList.appendChild(eventItemWrapper);
+            });
+        }
+
+        function registerEvent() {
+            const category = document.getElementById('category').value;
+            const title = document.getElementById('title').value;
+            const subtitle = document.getElementById('subtitle').value;
+            const introduction = document.getElementById('introduction').value;
+            const services = Array.from(document.getElementsByName('services[]')).map(input => input.value);
+            const prices = Array.from(document.getElementsByName('prices[]')).map(input => input.value);
+            const contact = document.getElementById('contact').value;
+            const photoFiles = document.getElementById('photos').files;
+
+            if (photoFiles.length === 0) {
+                alert('최소 한 개의 사진을 업로드해야 합니다.');
+                return;
+            }
+
+            const photos = [];
+            let loadedImages = 0;
+
+            for (let i = 0; i < photoFiles.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    photos.push(event.target.result);
+                    loadedImages++;
+                    if (loadedImages === photoFiles.length) {
+                        saveEvent(photos);
+                    }
+                };
+                reader.readAsDataURL(photoFiles[i]);
+            }
+
+            function saveEvent(photos) {
+                const newEvent = {
+                    category,
+                    title,
+                    subtitle,
+                    introduction,
+                    services,
+                    prices,
+                    contact,
+                    photo: photos[0] // 첫 번째 사진을 사용
+                };
+
+                const events = JSON.parse(localStorage.getItem('events')) || [];
+                events.push(newEvent);
+                localStorage.setItem('events', JSON.stringify(events));
+
+                alert('행사가 성공적으로 등록되었습니다.');
+                loadEventList();
+                loadPromotionList();
+                showSection('eventList');
+            }
+        }
+
+        function addServiceField() {
+            const serviceFields = document.getElementById('serviceFields');
+            const serviceIndex = serviceFields.children.length + 1;
+            const newField = document.createElement('div');
+            newField.className = 'form-group';
+            newField.innerHTML = `
+                <label for="service${serviceIndex}">서비스 ${serviceIndex}</label>
+                <input type="text" id="service${serviceIndex}" name="services[]" required>
+                <label for="price${serviceIndex}">가격 ${serviceIndex}</label>
+                <input type="number" id="price${serviceIndex}" name="prices[]" required>
+            `;
+            serviceFields.appendChild(newField);
+        }
+
+        function showEventDetails(eventTitle) {
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+            const event = events.find(e => e.title === eventTitle);
+
+            if (event) {
+                document.getElementById('eventPhoto').src = event.photo;
+                document.getElementById('eventTitle').textContent = event.title;
+                document.getElementById('eventSubtitle').textContent = event.subtitle;
+                document.getElementById('eventIntroduction').textContent = event.introduction;
+                
+                const eventServices = document.getElementById('eventServices');
+                eventServices.innerHTML = '<h3>서비스 목록:</h3>';
+                event.services.forEach((service, index) => {
+                    const serviceItem = document.createElement('p');
+                    serviceItem.textContent = `${service}: ${event.prices[index]}원`;
+                    eventServices.appendChild(serviceItem);
+                });
+
+                document.getElementById('eventContact').textContent = event.contact;
+
+                showSection('eventDetails');
+            }
+        }
+
+        function applyForEvent() {
+            alert("신청이 완료되었습니다!");
+        }
+
+        function editEvent() {
+            const currentEventName = document.getElementById('eventTitle').textContent;
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+            const eventIndex = events.findIndex(e => e.title === currentEventName);
+
+            if (eventIndex !== -1) {
+                const event = events[eventIndex];
+
+                const newTitle = prompt("업체 이름을 입력하세요:", event.title);
+                const newSubtitle = prompt("부제목을 입력하세요:", event.subtitle);
+                const newIntroduction = prompt("업체 소개를 입력하세요:", event.introduction);
+                const newServices = event.services.map((service, index) => prompt(`서비스 ${index + 1}를 입력하세요:`, service));
+                const newPrices = event.prices.map((price, index) => prompt(`가격 ${index + 1}을 입력하세요:`, price));
+                const newContact = prompt("연락처를 입력하세요:", event.contact);
+
+                event.title = newTitle || event.title;
+                event.subtitle = newSubtitle || event.subtitle;
+                event.introduction = newIntroduction || event.introduction;
+                event.services = newServices || event.services;
+                event.prices = newPrices || event.prices;
+                event.contact = newContact || event.contact;
+
+                events[eventIndex] = event;
+                localStorage.setItem('events', JSON.stringify(events));
+
+                alert("수정이 완료되었습니다.");
+                showEventDetails(event.title);
+            } else {
+                alert("수정할 행사를 찾을 수 없습니다.");
+            }
+        }
+
+        function deleteEvent(index) {
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+            if (index > -1) {
+                events.splice(index, 1);
+                localStorage.setItem('events', JSON.stringify(events));
+                loadEventList();
+                loadPromotionList();
+            }
+        }
+
+        function compareSelected() {
+            const selectedTitles = Array.from(document.querySelectorAll('.event-checkbox:checked')).map(input => input.value);
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+            const compareGrid = document.getElementById('compareGrid');
+            compareGrid.innerHTML = '';
+
+            if (selectedTitles.length < 2 || selectedTitles.length > 4) {
+                alert('비교를 위해 최소 2개, 최대 4개의 행사를 선택하세요.');
+                return;
+            }
+
+            selectedTitles.forEach(title => {
+                const event = events.find(e => e.title === title);
+                if (event) {
+                    const compareItem = document.createElement('div');
+                    compareItem.className = 'compare-item';
+                    compareItem.innerHTML = `
+                        <img src="${event.photo}" alt="${event.title}">
+                        <h3>${event.title}</h3>
+                        ${event.services.map((service, index) => `<p>${service}: ${event.prices[index]}원</p>`).join('')}
+                    `;
+                    compareGrid.appendChild(compareItem);
+                }
+            });
+
+            showSection('compareEvents');
+        }
+    </script>
 </body>
 </html>
