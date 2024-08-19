@@ -1,173 +1,310 @@
-// 메인 페이지 스크립트
-let selectedEvents = [];
-
 document.addEventListener('DOMContentLoaded', function() {
-    const events = JSON.parse(localStorage.getItem('events')) || [];
-    const eventList = document.querySelector('.event-list');
-
-    events.forEach(event => {
-        const eventItem = document.createElement('div');
-        eventItem.className = 'event-item';
-
-        eventItem.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-                loadEventDetails(event);
-                window.location.href = '#details';
-            }
-        });
-
-        eventItem.innerHTML = `
-            <input type="checkbox" onchange="toggleCompare('${event.title}')">
-            <img src="image-placeholder.jpg" alt="행사 이미지">
-            <div>
-                <h3>${event.title}</h3>
-                <p>${event.subtitle}</p>
-                <p>${event.content}</p>
-                <p>${event.price}원</p>
-                <p>연락처: ${event.contact}</p>
-            </div>
-            <button class="delete-button" onclick="deleteEvent('${event.title}', event)">삭제</button>
-        `;
-        eventList.appendChild(eventItem);
+    const page = window.location.hash.substr(1) || 'main';
+    loadPage(page);
+    window.addEventListener('hashchange', function() {
+        const newPage = window.location.hash.substr(1);
+        loadPage(newPage);
     });
 });
 
-function toggleCompare(eventName) {
-    const index = selectedEvents.indexOf(eventName);
+function loadPage(page) {
+    const content = document.getElementById('content');
 
-    if (index > -1) {
-        selectedEvents.splice(index, 1);
-    } else {
-        if (selectedEvents.length < 4) {
-            selectedEvents.push(eventName);
-        } else {
-            alert('최대 4개의 행사만 비교할 수 있습니다.');
-            return;
-        }
+    switch (page.split('?')[0]) { // hash에서 페이지 부분만 분리
+        case 'main':
+            loadMainPage(content);
+            break;
+        case 'register':
+            loadRegisterPage(content);
+            break;
+        case 'event-details':
+            loadEventDetailsPage(content, page);
+            break;
+        case 'compare':
+            loadComparePage(content);
+            break;
+        default:
+            loadMainPage(content);
+            break;
     }
+}
 
-    console.log(selectedEvents);
+function loadMainPage(content) {
+    content.innerHTML = `
+        <div class="button-container">
+            <a href="#register">행사 등록</a>
+        </div>
+        <section class="event-list">
+            <h2>홍보하는 행사 목록</h2>
+            <!-- 행사 목록이 로드됩니다 -->
+        </section>
+        <div class="compare-container">
+            <button id="compareButton" onclick="compareSelected()">비교하기</button>
+        </div>
+    `;
+
+    const events = JSON.parse(localStorage.getItem('events')) || [];
+    const eventList = content.querySelector('.event-list');
+
+    events.forEach((event, index) => {
+        const eventItemWrapper = document.createElement('div');
+        eventItemWrapper.className = 'event-item-wrapper';
+        eventItemWrapper.innerHTML = `
+            <div class="event-item">
+                <input type="checkbox" class="event-checkbox" data-index="${index}">
+                <div class="event-content">
+                    <img src="${event.photos[0]}" alt="행사 이미지">
+                    <div>
+                        <h3>${event.title}</h3>
+                        <p>${event.subtitle}</p>
+                        <p>최소 금액: ${event.minPrice}원</p>
+                    </div>
+                </div>
+                <button class="delete-button" onclick="deleteEvent(${index})">삭제</button>
+            </div>
+        `;
+
+        // 삭제 버튼 클릭 시 이벤트 전파를 중지
+        eventItemWrapper.querySelector('.delete-button').addEventListener('click', function(event) {
+            event.stopPropagation();
+            deleteEvent(index);
+        });
+
+        // 체크박스 클릭 시 이벤트 전파를 중지
+        eventItemWrapper.querySelector('.event-checkbox').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+
+        // 박스 클릭 시 상세 보기로 이동
+        eventItemWrapper.addEventListener('click', function() {
+            window.location.href = `#event-details?name=${encodeURIComponent(event.title)}`;
+        });
+
+        eventList.appendChild(eventItemWrapper);
+    });
+}
+
+function deleteEvent(index) {
+    if (confirm('정말 이 행사를 삭제하시겠습니까?')) {
+        let events = JSON.parse(localStorage.getItem('events')) || [];
+        events.splice(index, 1);
+        localStorage.setItem('events', JSON.stringify(events));
+        loadPage('main');
+    }
 }
 
 function compareSelected() {
-    if (selectedEvents.length < 2) {
-        alert('최소 2개의 행사 이상을 선택해야 비교할 수 있습니다.');
+    const checkboxes = document.querySelectorAll('.event-checkbox:checked');
+    const selectedEvents = Array.from(checkboxes).map(checkbox => {
+        return JSON.parse(localStorage.getItem('events'))[checkbox.dataset.index];
+    });
+
+    if (selectedEvents.length < 2 || selectedEvents.length > 4) {
+        alert('비교를 위해 최소 2개, 최대 4개의 행사를 선택하세요.');
         return;
     }
 
-    loadComparison(selectedEvents);
+    localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
     window.location.href = '#compare';
 }
 
-function deleteEvent(eventName, event) {
-    event.stopPropagation(); // 상세보기로 넘어가지 않도록 클릭 이벤트 중지
-    const confirmed = confirm(`정말로 ${eventName}을(를) 삭제하시겠습니까?`);
-    if (confirmed) {
-        let events = JSON.parse(localStorage.getItem('events')) || [];
-        events = events.filter(e => e.title !== eventName);
-        localStorage.setItem('events', JSON.stringify(events));
-        event.target.closest('.event-item').remove();
-    }
-}
+function loadRegisterPage(content) {
+    content.innerHTML = `
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="title">업체 이름</label>
+                <input type="text" id="title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="subtitle">부제목</label>
+                <input type="text" id="subtitle" name="subtitle" required>
+            </div>
+            <div class="form-group">
+                <label for="introduction">업체 소개</label>
+                <textarea id="introduction" name="introduction" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="content">행사 내용</label>
+                <textarea id="content" name="content" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="minPrice">최소 금액</label>
+                <input type="number" id="minPrice" name="minPrice" required>
+            </div>
+            <div class="form-group">
+                <label for="maxPrice">최대 금액</label>
+                <input type="number" id="maxPrice" name="maxPrice" required>
+            </div>
+            <div class="form-group">
+                <label for="contact">연락처</label>
+                <input type="text" id="contact" name="contact" required>
+            </div>
+            <div class="form-group">
+                <label for="photos">업체 사진</label>
+                <input type="file" id="photos" name="photos" multiple accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">등록</button>
+            </div>
+        </form>
+    `;
 
-// 행사 등록 스크립트
-document.getElementById('eventForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+    document.getElementById('registerForm').addEventListener('submit', function (event) {
+        event.preventDefault();
 
-    const title = document.getElementById('title').value;
-    const subtitle = document.getElementById('subtitle').value;
-    const content = document.getElementById('content').value;
-    const price = document.getElementById('price').value;
-    const contact = document.getElementById('contact').value;
+        const title = document.getElementById('title').value;
+        const subtitle = document.getElementById('subtitle').value;
+        const introduction = document.getElementById('introduction').value;
+        const content = document.getElementById('content').value;
+        const minPrice = document.getElementById('minPrice').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+        const contact = document.getElementById('contact').value;
+        const photoFiles = document.getElementById('photos').files;
 
-    let events = JSON.parse(localStorage.getItem('events')) || [];
+        const photos = [];
+        for (let i = 0; i < photoFiles.length; i++) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                photos.push(event.target.result);
+                if (photos.length === photoFiles.length) {
+                    saveEvent();
+                }
+            };
+            reader.readAsDataURL(photoFiles[i]);
+        }
 
-    const newEvent = {
-        title,
-        subtitle,
-        content,
-        price,
-        contact,
-        services: [], 
-    };
+        function saveEvent() {
+            const newEvent = {
+                title,
+                subtitle,
+                introduction,
+                content,
+                minPrice,
+                maxPrice,
+                contact,
+                photos
+            };
 
-    events.push(newEvent);
-    localStorage.setItem('events', JSON.stringify(events));
+            const events = JSON.parse(localStorage.getItem('events')) || [];
+            events.push(newEvent);
+            localStorage.setItem('events', JSON.stringify(events));
 
-    window.location.href = '#';
-});
-
-// 행사 상세보기 스크립트
-let currentEventName = '';
-
-function loadEventDetails(event) {
-    currentEventName = event.title;
-    document.getElementById('eventName').textContent = event.title;
-    document.getElementById('eventDescription').textContent = event.content;
-    document.getElementById('minPrice').textContent = event.price + '원';
-
-    const serviceList = document.getElementById('serviceList');
-    serviceList.innerHTML = ''; // 이전 내용 초기화
-    event.services.forEach(service => {
-        const li = document.createElement('li');
-        li.textContent = service;
-        serviceList.appendChild(li);
+            alert('행사가 성공적으로 등록되었습니다.');
+            loadPage('main');
+        }
     });
 }
 
-function enableEditing() {
-    document.getElementById('eventDescription').contentEditable = true;
-    document.getElementById('minPrice').contentEditable = true;
-    document.getElementById('serviceList').contentEditable = true;
-    document.getElementById('editButton').style.display = 'none';
-    document.getElementById('saveButton').style.display = 'inline-block';
-}
+function loadEventDetailsPage(content, page) {
+    const urlParams = new URLSearchParams(page.split('?')[1]);
+    const currentEventName = urlParams.get('name');
 
-function saveChanges() {
-    const updatedDescription = document.getElementById('eventDescription').textContent;
-    const updatedPrice = document.getElementById('minPrice').textContent.replace('원', '');
-    const updatedServices = Array.from(document.getElementById('serviceList').children).map(li => li.textContent);
+    const eventDetails = JSON.parse(localStorage.getItem('events')) || [];
 
-    let events = JSON.parse(localStorage.getItem('events')) || [];
+    const event = eventDetails.find(e => e.title.trim() === decodeURIComponent(currentEventName).trim()); // 정확한 이름 비교를 위해 decodeURIComponent 사용
 
-    const eventIndex = events.findIndex(e => e.title === currentEventName);
-    if (eventIndex > -1) {
-        events[eventIndex].content = updatedDescription;
-        events[eventIndex].price = updatedPrice;
-        events[eventIndex].services = updatedServices;
-        localStorage.setItem('events', JSON.stringify(events));
 
-        alert('행사 정보가 수정되었습니다.');
+    if (event) {
+        content.innerHTML = `
+            <div class="button-container">
+                <button onclick="loadPage('main')">뒤로 가기</button>
+                <button onclick="applyForEvent()">신청하기</button>
+                <button onclick="editEvent()">수정하기</button>
+            </div>
 
-        document.getElementById('eventDescription').contentEditable = false;
-        document.getElementById('minPrice').contentEditable = false;
-        document.getElementById('serviceList').contentEditable = false;
-        document.getElementById('editButton').style.display = 'inline-block';
-        document.getElementById('saveButton').style.display = 'none';
+            <section class="event-detail">
+                <div>
+                    <h2 id="eventTitle">${event.title}</h2>
+                    <p id="eventSubtitle">${event.subtitle}</p>
+                </div>
+                <div class="event-image">
+                    <img id="eventPhoto" src="${event.photos[0]}" alt="업체 사진">
+                </div>
+                <div>
+                    <h3>업체 소개:</h3>
+                    <p id="eventIntroduction">${event.introduction}</p>
+                </div>
+                <div>
+                    <h3>내용:</h3>
+                    <p id="eventContent">${event.content}</p>
+                </div>
+                <div>
+                    <h3>금액:</h3>
+                    <p id="eventPrice">${event.minPrice}원 - ${event.maxPrice}원</p>
+                </div>
+                <div>
+                    <h3>연락처:</h3>
+                    <p id="eventContact">${event.contact}</p>
+                </div>
+            </section>
+        `;
+    } else {
+        content.innerHTML = '<p>행사를 찾을 수 없습니다.</p>';
     }
 }
 
-// 행사 비교 스크립트
-function loadComparison(selectedEvents) {
-    const eventsData = JSON.parse(localStorage.getItem('events')) || [];
-    const comparisonTable = document.getElementById('comparisonTable');
-    comparisonTable.innerHTML = ''; // 초기화
+function applyForEvent() {
+    alert("신청이 완료되었습니다!");
+}
 
-    selectedEvents.forEach(eventName => {
-        const event = eventsData.find(e => e.title === eventName);
-        if (event) {
-            const eventDiv = document.createElement('div');
-            eventDiv.className = 'compare-item';
-            eventDiv.innerHTML = `
-                <h3>${event.title}</h3>
-                <p><strong>설명:</strong> ${event.content}</p>
-                <p><strong>최소 비용:</strong> ${event.price}원</p>
-                <h4>서비스 목록:</h4>
-                <ul>
-                    ${event.services.map(service => `<li>${service}</li>`).join('')}
-                </ul>
-            `;
-            comparisonTable.appendChild(eventDiv);
-        }
+function editEvent() {
+    const currentEventName = new URLSearchParams(window.location.hash.split('?')[1]).get('name');
+    const eventDetails = JSON.parse(localStorage.getItem('events')) || [];
+    const eventIndex = eventDetails.findIndex(e => e.title === currentEventName);
+
+    if (eventIndex !== -1) {
+        const event = eventDetails[eventIndex];
+
+        const newTitle = prompt("업체 이름을 입력하세요:", event.title);
+        const newSubtitle = prompt("부제목을 입력하세요:", event.subtitle);
+        const newIntroduction = prompt("업체 소개를 입력하세요:", event.introduction);
+        const newContent = prompt("행사 내용을 입력하세요:", event.content);
+        const newMinPrice = prompt("최소 금액을 입력하세요:", event.minPrice);
+        const newMaxPrice = prompt("최대 금액을 입력하세요:", event.maxPrice);
+        const newContact = prompt("연락처를 입력하세요:", event.contact);
+
+        event.title = newTitle || event.title;
+        event.subtitle = newSubtitle || event.subtitle;
+        event.introduction = newIntroduction || event.introduction;
+        event.content = newContent || event.content;
+        event.minPrice = newMinPrice || event.minPrice;
+        event.maxPrice = newMaxPrice || event.maxPrice;
+        event.contact = newContact || event.contact;
+
+        eventDetails[eventIndex] = event;
+        localStorage.setItem('events', JSON.stringify(eventDetails));
+
+        alert("수정이 완료되었습니다.");
+        loadEventDetailsPage(document.getElementById('content'), window.location.hash);
+    } else {
+        alert("수정할 행사를 찾을 수 없습니다.");
+    }
+}
+
+function loadComparePage(content) {
+    content.innerHTML = `
+        <div class="compare-grid" id="compareGrid">
+            <!-- 선택된 행사 목록이 로드됩니다 -->
+        </div>
+    `;
+
+    const selectedEvents = JSON.parse(localStorage.getItem('selectedEvents')) || [];
+    const compareGrid = document.getElementById('compareGrid');
+
+    if (selectedEvents.length < 2 || selectedEvents.length > 4) {
+        alert('비교를 위해 최소 2개, 최대 4개의 행사를 선택하세요.');
+        loadPage('main');
+        return;
+    }
+
+    selectedEvents.forEach(event => {
+        const compareItem = document.createElement('div');
+        compareItem.className = 'compare-item';
+        compareItem.innerHTML = `
+            <img src="${event.photos[0]}" alt="${event.title}">
+            <h3>${event.title}</h3>
+            <p>최소 금액: ${event.minPrice}원</p>
+        `;
+        compareGrid.appendChild(compareItem);
     });
 }
