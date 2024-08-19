@@ -343,7 +343,6 @@
             <div class="button-container">
                 <button onclick="showSection('eventList')">뒤로 가기</button>
                 <button onclick="applyForEvent()">신청하기</button>
-                <button onclick="editEvent()">수정하기</button>
                 <button onclick="showReviewForm()">리뷰 쓰기</button>
             </div>
 
@@ -660,37 +659,6 @@
 
         function applyForEvent() {
             alert("신청이 완료되었습니다!");
-        }
-
-        function editEvent() {
-            const events = JSON.parse(localStorage.getItem('events')) || [];
-            const eventIndex = events.findIndex(e => e.title === currentEventTitle);
-
-            if (eventIndex !== -1) {
-                const event = events[eventIndex];
-
-                const newTitle = prompt("업체 이름을 입력하세요:", event.title);
-                const newSubtitle = prompt("부제목을 입력하세요:", event.subtitle);
-                const newIntroduction = prompt("업체 소개를 입력하세요:", event.introduction);
-                const newServices = event.services.map((service, index) => prompt(`서비스 ${index + 1}를 입력하세요:`, service));
-                const newPrices = event.prices.map((price, index) => prompt(`가격 ${index + 1}을 입력하세요:`, price));
-                const newContact = prompt("연락처를 입력하세요:", event.contact);
-
-                event.title = newTitle || event.title;
-                event.subtitle = newSubtitle || event.subtitle;
-                event.introduction = newIntroduction || event.introduction;
-                event.services = newServices || event.services;
-                event.prices = newPrices || event.prices;
-                event.contact = newContact || event.contact;
-
-                events[eventIndex] = event;
-                localStorage.setItem('events', JSON.stringify(events));
-
-                alert("수정이 완료되었습니다.");
-                showEventDetails(event.title);
-            } else {
-                alert("수정할 행사를 찾을 수 없습니다.");
-            }
         }
 
         function deleteEvent(index) {
